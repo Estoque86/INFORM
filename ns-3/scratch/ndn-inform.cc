@@ -242,10 +242,7 @@ main (int argc, char *argv[14])
 		  for (size_t j = 0; j < adjMatrix[i].size (); j++)
 	      {
 			  if (adjMatrix[i][j] == 1)
-	          {
-		          // Create Links between Core Nodes and Repos
-		          uint32_t linkCountRepos = 0;
-
+			  {
 		          Ptr<Node> one;
 		          Ptr<Node> two;
 
