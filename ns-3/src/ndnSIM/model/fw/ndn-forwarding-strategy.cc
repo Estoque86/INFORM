@@ -763,7 +763,7 @@ ForwardingStrategy::OnData (Ptr<Face> inFace,
 	 while (pitEntry != 0)
 	 {
 	     // Do data plane performance measurements
-	     WillSatisfyPendingInterest (inFace, pitEntry);
+	     //WillSatisfyPendingInterest (inFace, pitEntry);
 
 	     // Actually satisfy pending interest
 	     SatisfyPendingInterest (inFace, header, payload, origPacket, pitEntry);
