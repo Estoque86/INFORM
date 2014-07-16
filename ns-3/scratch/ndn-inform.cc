@@ -243,20 +243,40 @@ main (int argc, char *argv[14])
 	      {
 			  if (adjMatrix[i][j] == 1)
 	          {
-				  NodeContainer n_links = NodeContainer (coreNodes.Get (i), coreNodes.Get (j));
-	              NetDeviceContainer n_devs = p2p.Install (n_links);
-	              linkCount++;
-	              // NB: Forse servirˆ settare gli attributi di Link della classe TopologyReader (tipo FromNode, ToNode)
+		          // Create Links between Core Nodes and Repos
+		          uint32_t linkCountRepos = 0;
 
-	              PointerValue txQueue;
+		          Ptr<Node> one;
+		          Ptr<Node> two;
 
-	              n_devs.Get(0)->GetAttribute ("TxQueue", txQueue);
-	              NS_ASSERT (txQueue.Get<DropTailQueue> () != 0);
-	              txQueue.Get<DropTailQueue> ()->SetAttribute ("MaxPackets", StringValue (txBuffer));
+		          one = coreNodes.Get (i);
+		          two = coreNodes.Get (j);
 
-	              n_devs.Get(1)->GetAttribute ("TxQueue", txQueue);
-	              NS_ASSERT (txQueue.Get<DropTailQueue> () != 0);
-	              txQueue.Get<DropTailQueue> ()->SetAttribute ("MaxPackets", StringValue (txBuffer));
+		          AnnotatedTopologyReader::Link link (one, "core_1", two, "core_2");
+		          link.SetAttribute("DataRate", linkRateCore);
+		          link.SetAttribute("OSPF", "1");
+		          link.SetAttribute("Delay", linkDelayCore);
+		          link.SetAttribute ("MaxPackets", txBuffer);
+		          topologyReader.AddLink(link);
+
+		          //NetDeviceContainer n_devs = p2p.Install (n_links);
+		          linkCount++;
+
+				  //#######################################################
+//				  NodeContainer n_links = NodeContainer (coreNodes.Get (i), coreNodes.Get (j));
+//	              NetDeviceContainer n_devs = p2p.Install (n_links);
+//	              linkCount++;
+//	              // NB: Forse servirˆ settare gli attributi di Link della classe TopologyReader (tipo FromNode, ToNode)
+//
+//	              PointerValue txQueue;
+//
+//	              n_devs.Get(0)->GetAttribute ("TxQueue", txQueue);
+//	              NS_ASSERT (txQueue.Get<DropTailQueue> () != 0);
+//	              txQueue.Get<DropTailQueue> ()->SetAttribute ("MaxPackets", StringValue (txBuffer));
+//
+//	              n_devs.Get(1)->GetAttribute ("TxQueue", txQueue);
+//	              NS_ASSERT (txQueue.Get<DropTailQueue> () != 0);
+//	              txQueue.Get<DropTailQueue> ()->SetAttribute ("MaxPackets", StringValue (txBuffer));
 	          }
 	      }
 	  }
