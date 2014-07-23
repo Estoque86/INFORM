@@ -23,16 +23,16 @@ netImport=""
 clPerc=50    		# Percentage of core node a client is attached to. 
 eta=0.7      		# Eta parameter to calculate the Q-value
 delta=0.1    		# Treshold indicating when the Exploitation phase must be stopped.
-maxExplor=3		# Max num of chunks for the Exploration phase
-maxExploit=2 		# Max num of chunks for the Exploitation phase
-qTabLifetime=10 		# qTab lifitime [s]
+maxExplor=2		# Max num of chunks for the Exploration phase
+maxExploit=8 		# Max num of chunks for the Exploitation phase
+qTabLifetime=20 		# qTab lifitime [s]
 
 
-numClients=11           #approximately
+numClients=35           #approximately
 #L=200
 #simDuration=5000
 #req=500000000
-req=140
+req=1500
 
 #for n in Geant SmallWorld_Triu Random_Triu
 for n in smallWorld #Geant_Topo_Only #random

@@ -605,22 +605,27 @@ ConsumerRtxZipf::SendPacket ()
   {
       //NS_LOG_UNCOND("APP: Sending a RETRANSMISSION:\t" << fullName);
 
-	  NS_LOG_UNCOND("SEND PACKET - APP: Sending a RETRANSMISSION\t" << fullName << "\t" << Simulator::Now());
+          //NS_LOG_UNCOND("SEND PACKET - APP: Sending a RETRANSMISSION\t" << fullName << "\t" << Simulator::Now());
 
-	  if(chunkNum != 0)     // It is the FIRST Chunk that needs to be retransmitted
-	  {
-		  if(download_time_first->find(fullName)!=download_time_first->end())
-			  download_time_first->find(fullName)->second.sentTimeChunk_New = Simulator::Now();
-	  	  else
-	  		  NS_LOG_UNCOND("Impossible to find the retransmitted content in the map!!");
-	  }
-	  else // It is NOT the FIRST Chunk that needs to be retransmitted
-	  {
-		  if(download_time->find(fullName)!=download_time->end())
-			  download_time->find(fullName)->second.sentTimeChunk_New = Simulator::Now();
-		  else
-			  NS_LOG_UNCOND("Impossible to find the retransmitted content in the map!!");
-	  }
+          if(chunkNum != 0)     // It is the FIRST Chunk that needs to be retransmitted
+          {    
+                  if(download_time_first->find(fullName)!=download_time_first->end())
+                          download_time_first->find(fullName)->second.sentTimeChunk_New = Simulator::Now();
+                  else 
+                          NS_LOG_UNCOND("Impossible to find the retransmitted content in the map!!");
+     
+                  if(download_time->find(fullName)!=download_time->end())        // The first chunk is also considered as a general chunk
+                          download_time->find(fullName)->second.sentTimeChunk_New = Simulator::Now();
+                  else 
+                          NS_LOG_UNCOND("Impossible to find the retransmitted content in the map!!");
+          }    
+          else // It is NOT the FIRST Chunk that needs to be retransmitted
+          {    
+                  if(download_time->find(fullName)!=download_time->end())
+                          download_time->find(fullName)->second.sentTimeChunk_New = Simulator::Now();
+                  else 
+                          NS_LOG_UNCOND("Impossible to find the retransmitted content in the map!!");
+          }    
   }
 
   Ptr<Interest> interestHeader = Create<Interest>();
@@ -691,7 +696,7 @@ ConsumerRtxZipf::OnContentObject (const Ptr<const ContentObject> &contentObject,
   std::string cont_ric_app = ss.str();
   ss.str("");
 
-  //NS_LOG_UNCOND("ON DATA - APP: Received CONTENT OBJECT\t" << cont_ric << "\t" << Simulator::Now());
+  NS_LOG_UNCOND("NODE:\t" << Application::GetNode()->GetId() << "\tON DATA - APP: Received CONTENT OBJECT\t" << cont_ric << "\t" << Simulator::Now());
 
 
   // Retrieve the ContentID and the ChunkNumber associated to the received content
@@ -703,7 +708,7 @@ ConsumerRtxZipf::OnContentObject (const Ptr<const ContentObject> &contentObject,
   seqStr = ss.str();
   ss.str("");
 
-  //NS_LOG_UNCOND("ON DATA - APP: Received CONTENT OBJECT with SeqNum\t" << seqNumRic << "\t" << Simulator::Now());
+  NS_LOG_UNCOND("NODE:\t" << Application::GetNode()->GetId() << "\tON DATA - APP: Received CONTENT OBJECT with SeqNum\t" << seqNumRic << "\t" << Simulator::Now());
 
   //std::map<std::string, const std::vector<uint32_t>*>::iterator itMap;
 
@@ -711,16 +716,16 @@ ConsumerRtxZipf::OnContentObject (const Ptr<const ContentObject> &contentObject,
   //itMap = contentInfoSeqNum->find(seqStr);
   //if(contentInfoSeqNum->find(seqStr)!=contentInfoSeqNum->end())
   //{
-	  //contentInfo->push_back( (*itMap).second->operator [](0));   // Sequential seq num associated to contentInfo
-	  //contentInfo->push_back( (*itMap).second->operator [](1));
+          //contentInfo->push_back( (*itMap).second->operator [](0));   // Sequential seq num associated to contentInfo
+          //contentInfo->push_back( (*itMap).second->operator [](1));
 
-	//  NS_LOG_UNCOND("ECCO!!");
+        //  NS_LOG_UNCOND("ECCO!!");
   //}
 
   //else
   //{
-	//  NS_LOG_UNCOND("CAZOOOOOO!!!!");
-	//  return;
+        //  NS_LOG_UNCOND("CAZOOOOOO!!!!");
+        //  return;
   //}
 
   //uint32_t contentID = contentInfoSeqNum->find(seqStr)->second.contentID;
@@ -740,17 +745,18 @@ ConsumerRtxZipf::OnContentObject (const Ptr<const ContentObject> &contentObject,
   // *** The SEEK TIME should be calculated only concerning the FIRST Chunk.
   if(download_time_first->find(cont_ric)!=download_time_first->end())
   {
-	  Time firstTxTime = download_time_first->find(cont_ric)->second.sentTimeChunk_First;
+        Time firstTxTime = download_time_first->find(cont_ric)->second.sentTimeChunk_First;
 
-	  Time lastTxTime = download_time_first->find(cont_ric)->second.sentTimeChunk_New;
+        Time lastTxTime = download_time_first->find(cont_ric)->second.sentTimeChunk_New;
 
-      Time downloadTime = (Simulator::Now() - lastTxTime)+download_time_first->find(cont_ric)->second.incrementalTime;
+        Time downloadTime = (Simulator::Now() - lastTxTime)+download_time_first->find(cont_ric)->second.incrementalTime;
 
-      // It is the same Tracing File both for the Download Time and for the Hop Count
-	  std::string nodeType = this->GetNode()->GetObject<ForwardingStrategy>()->GetNodeType();
-      m_downloadTime (&cont_ric_app, firstTxTime.GetMicroSeconds(), downloadTime.GetMicroSeconds(), dist, "FIRST", nodeType);
+        // It is the same Tracing File both for the Download Time and for the Hop Count
+       std::string nodeType = this->GetNode()->GetObject<ForwardingStrategy>()->GetNodeType();
 
-      download_time_first->erase(cont_ric);
+        m_downloadTime (&cont_ric_app, firstTxTime.GetMicroSeconds(), downloadTime.GetMicroSeconds(), dist, "FIRST", nodeType);
+
+        download_time_first->erase(cont_ric);
   }
 
   // Checking the received Chunk; Update the structure "download_time_file" and, eventually, calculate the file download time
@@ -771,78 +777,115 @@ ConsumerRtxZipf::OnContentObject (const Ptr<const ContentObject> &contentObject,
 
   for(uint32_t t = 0; t < numComponents; t++)
   {
-	ss << "/" << *it;
-	it++;
+        ss << "/" << *it;
+        it++;
   }
   std::string contentWithoutChunk = ss.str();
   ss.str("");
 
+  NS_LOG_UNCOND("NODE:\t" << Application::GetNode()->GetId() << "\t Content WITHOUT CHUNK:\t" << contentWithoutChunk);
   // Control if the respective content of the received chunk has been already deleted from the structure.
   // This can happen when one ore more chunks are received after the last chunk.
   if(download_time_file->find(contentWithoutChunk)!=download_time_file->end())
   {
-	  uint32_t totNumChunks = download_time_file->find(contentWithoutChunk)->second.expNumChunk;
-      std::string checkChunk = "s_";
-      ss << checkChunk << (totNumChunks-1);
-      checkChunk = ss.str();
-      if (chunkString.compare(checkChunk) != 0)    // The received chunk does not correspond to the last one; so, only the counter of received chunk is incremented.
-	  	  	  	  	  	                           // If exactly the last chunk is lost, the respective contents will stay into the download_time_file structure.
-      {
-    	  download_time_file->find(contentWithoutChunk)->second.rcvNumChunk++;
+        uint32_t totNumChunks = download_time_file->find(contentWithoutChunk)->second.expNumChunk;
 
-    	  // ** The download time of the single chunk is calculated and added to the sum the refers to the respective content
-    	  Time incrementTime = Simulator::Now() - download_time->find(cont_ric)->second.sentTimeChunk_New;
-    	  if(incrementTime > NanoSeconds(100000000)) // vuol dire che la ritrasmissione schedulata non è stata ancora effettuata.
-    		  incrementTime = NanoSeconds(100000000) + download_time->find(cont_ric)->second.incrementalTime;
-          else
-        	  incrementTime = (Simulator::Now() - download_time->find(cont_ric)->second.sentTimeChunk_New)+download_time->find(cont_ric)->second.incrementalTime;
+        NS_LOG_UNCOND("NODE:\t" << Application::GetNode()->GetId() << "\t Content:\t" << contentWithoutChunk << " with " << totNumChunks << " expected chunks presente nella mappa");
 
-	      download_time_file->find(contentWithoutChunk)->second.downloadTime+=incrementTime;
-          download_time_file->find(contentWithoutChunk)->second.distance+=dist;
-	      download_time->erase(cont_ric);
-      }
-      else  // The received chunk is the LAST one. If rcvChunks == expChunks --> calculate Download Time;
-    	    // otherwise, the content is marked as lost.
-      {
-    	  if(download_time_file->find(contentWithoutChunk)->second.rcvNumChunk == (totNumChunks - 1))
-	      {
-        	  download_time_file->find(contentWithoutChunk)->second.rcvNumChunk++;
+        std::string checkChunk = "s_";
+        ss << checkChunk << (totNumChunks-1);
+        checkChunk = ss.str();
 
-        	  // ** The download time of the single chunk is calculated and added to the sum the refers to the respective content
-        	  Time incrementTime = Simulator::Now() - download_time->find(cont_ric)->second.sentTimeChunk_New;
-        	//  if(incrementTime > NanoSeconds(100000000)) // vuol dire che la ritrasmissione schedulata non è stata ancora effettuata.
-        	//	  incrementTime = NanoSeconds(100000000) + download_time->find(cont_ric)->second.incrementalTime;
-            //  else
-            //	  incrementTime = (Simulator::Now() - download_time->find(cont_ric)->second.sentTimeChunk_New)+download_time->find(cont_ric)->second.incrementalTime;
+        NS_LOG_UNCOND("Content:\t" << contentWithoutChunk << " with extracted chunk number:\t" << chunkString << "\t and expected chunk string:\t" << checkChunk);
 
-    	      download_time_file->find(contentWithoutChunk)->second.downloadTime+=incrementTime;
-              download_time_file->find(contentWithoutChunk)->second.distance+=dist;
-    	      download_time->erase(cont_ric);
+        if (chunkString.compare(checkChunk) != 0)    // The received chunk does not correspond to the last one; so, only the counter of received chunk is incremented.
+                                                     // If exactly the last chunk is lost, the respective contents will stay into the download_time_file structure.
+        {
+                NS_LOG_UNCOND("NODE:\t" << Application::GetNode()->GetId() << "\t IS NOT THE LAST CHUNK!");
 
-		      Time downloadTimeFinal = download_time_file->find(contentWithoutChunk)->second.downloadTime;
-              Time firstChunkTime = download_time_file->find(contentWithoutChunk)->second.sentTimeFirst;
-              uint32_t meanHitDistance = round(download_time_file->find(contentWithoutChunk)->second.distance / totNumChunks);
+                download_time_file->find(contentWithoutChunk)->second.rcvNumChunk++;
 
-        	  std::string nodeType = this->GetNode()->GetObject<ForwardingStrategy>()->GetNodeType();
-              m_downloadTimeFile (&contentWithoutChunk, firstChunkTime.GetMicroSeconds(), downloadTimeFinal.GetMicroSeconds(), meanHitDistance, "FILE", nodeType);
+                // ** The download time of the single chunk is calculated and added to the sum the refers to the respective content
+                Time incrementTime = Simulator::Now() - download_time->find(cont_ric)->second.sentTimeChunk_New;
+                if(incrementTime > NanoSeconds(100000000)) // vuol dire che la ritrasmissione schedulata non è stata ancora effettuata.
+                        incrementTime = NanoSeconds(100000000) + download_time->find(cont_ric)->second.incrementalTime;
+                else
+                        incrementTime = (Simulator::Now() - download_time->find(cont_ric)->second.sentTimeChunk_New)+download_time->find(cont_ric)->second.incrementalTime;
 
-              download_time_file->erase(contentWithoutChunk);
-	      }
-    	  else   // One or more chunks have been not received; so the entire content is marked as LOST
-    	  {
-    		  Time firstChunkTime = download_time_file->find(contentWithoutChunk)->second.sentTimeFirst;
-		      download_time_file->erase(contentWithoutChunk);
-		      download_time->erase(cont_ric);
+                //NS_LOG_UNCOND("Incremental Time of Content: " << contentWithoutChunk << "\t" << incrementTime);
 
-		      // APP-LEVEL Tracing of Incomplete Files
-			  std::string nodeType = this->GetNode()->GetObject<ForwardingStrategy>()->GetNodeType();
-		      m_uncompleteFile(&contentWithoutChunk, firstChunkTime.GetMicroSeconds(),"ELMFILE", nodeType);
-    	  }
-      }
+                //Time temp = download_time_file->find(contentWithoutChunk)->second.downloadTime;
+
+                //NS_LOG_UNCOND("Partial Download Time of Content BEFORE: " << contentWithoutChunk << "\t" << temp);
+
+                download_time_file->find(contentWithoutChunk)->second.downloadTime+=incrementTime;
+
+                //temp = download_time_file->find(contentWithoutChunk)->second.downloadTime;
+
+                //NS_LOG_UNCOND("Partial Download Time of Content AFTER: " << contentWithoutChunk << "\t" << temp);
+
+                download_time_file->find(contentWithoutChunk)->second.distance+=dist;
+                download_time->erase(cont_ric);
+        }
+        else    // The received chunk is the LAST one. If rcvChunks == expChunks --> calculate Download Time;
+                // otherwise, the content is marked as lost.
+        {
+                NS_LOG_UNCOND("NODE:\t" << Application::GetNode()->GetId() << "\t IS THE LAST CHUNK");
+
+                uint32_t cksRcv = download_time_file->find(contentWithoutChunk)->second.rcvNumChunk;
+                uint32_t cksExp = totNumChunks - 1;
+
+                if(cksRcv == cksExp)
+                {
+                        NS_LOG_UNCOND("NODE:\t" << Application::GetNode()->GetId() << "\t num RECEIVED chunks:\t" << cksRcv << " equal to num of expected chunks:\t" << cksExp);
+                        download_time_file->find(contentWithoutChunk)->second.rcvNumChunk++;
+
+                        // ** The download time of the single chunk is calculated and added to the sum the refers to the respective content
+                        Time incrementTime = Simulator::Now() - download_time->find(cont_ric)->second.sentTimeChunk_New;
+                        //  if(incrementTime > NanoSeconds(100000000)) // vuol dire che la ritrasmissione schedulata non è stata ancora effettuata.
+                        // incrementTime = NanoSeconds(100000000) + download_time->find(cont_ric)->second.incrementalTime;
+                        //  else
+                        // incrementTime = (Simulator::Now() - download_time->find(cont_ric)->second.sentTimeChunk_New)+download_time->find(cont_ric)->second.incrementalTime;
+
+                        //NS_LOG_UNCOND("Incremental Time Last Chunk:\t" << incrementTime);
+
+                        download_time_file->find(contentWithoutChunk)->second.downloadTime+=incrementTime;
+                        download_time_file->find(contentWithoutChunk)->second.distance+=dist;
+                        download_time->erase(cont_ric);
+
+                        //Time temp = download_time_file->find(contentWithoutChunk)->second.downloadTime;
+
+                        //NS_LOG_UNCOND("Partial Download Time of Content: " << contentWithoutChunk << "\t" << temp);
+
+
+                        Time downloadTimeFinal = download_time_file->find(contentWithoutChunk)->second.downloadTime;
+                        Time firstChunkTime = download_time_file->find(contentWithoutChunk)->second.sentTimeFirst;
+                        uint32_t meanHitDistance = round(download_time_file->find(contentWithoutChunk)->second.distance / totNumChunks);
+
+                        std::string nodeType = this->GetNode()->GetObject<ForwardingStrategy>()->GetNodeType();
+
+                        //m_downloadTimeFile (&contentWithoutChunk, firstChunkTime.GetMicroSeconds(), downloadTimeFinal.GetMicroSeconds(), meanHitDistance, "FILE", nodeType);
+                        m_downloadTime (&contentWithoutChunk, firstChunkTime.GetMicroSeconds(), downloadTimeFinal.GetMicroSeconds(), meanHitDistance, "FILE", nodeType);
+
+                        download_time_file->erase(contentWithoutChunk);
+                }
+                else    // One or more chunks have been not received; so the entire content is marked as LOST
+                {
+                        NS_LOG_UNCOND("NODE:\t" << Application::GetNode()->GetId() << "\t Content Name:\t" << contentWithoutChunk << "\t one or more stuff are lost");
+
+                        Time firstChunkTime = download_time_file->find(contentWithoutChunk)->second.sentTimeFirst;
+                        download_time_file->erase(contentWithoutChunk);
+                        download_time->erase(cont_ric);
+
+                        // APP-LEVEL Tracing of Incomplete Files
+                       std::string nodeType = this->GetNode()->GetObject<ForwardingStrategy>()->GetNodeType();
+                        m_uncompleteFile(&contentWithoutChunk, firstChunkTime.GetMicroSeconds(),"ELMFILE", nodeType);
+                }
+        }
   }
   else
   {
-	  download_time->erase(cont_ric);
+          download_time->erase(cont_ric);
   }
 
 
