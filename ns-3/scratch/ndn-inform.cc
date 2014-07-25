@@ -663,7 +663,7 @@ main (int argc, char *argv[14])
 
   ndnGlobalRoutingHelper.CalculateRoutes ();
 
-NS_LOG_UNCOND("CHECK!!");
+  // NS_LOG_UNCOND("CHECK!!");
 
   // ****  Install Ndn Application Layers
   NS_LOG_INFO ("Installing Applications");
@@ -757,11 +757,11 @@ NS_LOG_UNCOND("CHECK!!");
 	  }
 
 	  // ** Check the inserted rtt values
-	  NS_LOG_UNCOND("MAIN - Check the inserted RTT values at Node:\t" << (*node)->GetId() << "\n");
-	  for(uint32_t i = 0; i < numDev; i++)
-	  {
-		  NS_LOG_UNCOND("Interface:\t" << i << "\twith RTT=\t" << qTabPointer->GetRttVect().operator [](i) << " us\n");
-	  }
+	  // NS_LOG_UNCOND("MAIN - Check the inserted RTT values at Node:\t" << (*node)->GetId() << "\n");
+	  //for(uint32_t i = 0; i < numDev; i++)
+	  //{
+	  //	  NS_LOG_UNCOND("Interface:\t" << i << "\twith RTT=\t" << qTabPointer->GetRttVect().operator [](i) << " us\n");
+	  //}
 
   }
 

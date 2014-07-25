@@ -233,12 +233,12 @@ ForwardingStrategy::OnInterest (Ptr<Face> inFace,
   // ** Check if a similar Interest has been already forwarded and not satisfied yet.
   Ptr<pit::Entry> pitEntry = m_pit->Lookup (*header);
 
-NS_LOG_UNCOND("FINE PIT LOOKUP");
+  // NS_LOG_UNCOND("FINE PIT LOOKUP");
 
   //  Check if a QTAB Entry is already present.
   Ptr<qtab::Entry> qtabEntry = m_qtab->LookupQtab(*header_new);
 
-NS_LOG_UNCOND("FINE QTAB LOOKUP");
+  // NS_LOG_UNCOND("FINE QTAB LOOKUP");
 
   bool similarInterest = true;
 
@@ -248,7 +248,7 @@ NS_LOG_UNCOND("FINE QTAB LOOKUP");
 
     pitEntry = m_pit->Create (header, header_new);
 
-NS_LOG_UNCOND("FINE CREAZIONE PIT");
+  // NS_LOG_UNCOND("FINE CREAZIONE PIT");
 
     if (pitEntry != 0)
     {
@@ -261,7 +261,7 @@ NS_LOG_UNCOND("FINE CREAZIONE PIT");
     		Ptr<fib::Entry> fibEntry = pitEntry->GetFibEntry();
     		qtabEntry = m_qtab->CreateQtab(header_new, fibEntry, numInterfaces);
 
-		NS_LOG_UNCOND("FINE CREAZIONE QTAB ENTRY");
+		//NS_LOG_UNCOND("FINE CREAZIONE QTAB ENTRY");
     	}
     	else
     	{
@@ -270,7 +270,7 @@ NS_LOG_UNCOND("FINE CREAZIONE PIT");
     }
     else
     {
-		NS_LOG_UNCOND ("NODE:\t" << inFace->GetNode()->GetId() << "FAILED TO CREATE PIT ENTRY\t" << header_new->GetName());
+		// NS_LOG_UNCOND ("NODE:\t" << inFace->GetNode()->GetId() << "FAILED TO CREATE PIT ENTRY\t" << header_new->GetName());
 
       FailedToCreatePitEntry (inFace, header, origPacket);
       return;
@@ -317,7 +317,7 @@ NS_LOG_UNCOND("FINE CREAZIONE PIT");
 
         if(contentObject != 0)   // The REPO has the content
         {
-              NS_LOG_UNCOND("NODE:\t" << inFace->GetNode()->GetId() << " CONTENT IN REPO: " << interestNoChunk);
+              // NS_LOG_UNCOND("NODE:\t" << inFace->GetNode()->GetId() << " CONTENT IN REPO: " << interestNoChunk);
 
               header_repo = Create<ContentObject> ();
               contentObject->RemoveHeader (*header_repo);
@@ -325,7 +325,7 @@ NS_LOG_UNCOND("FINE CREAZIONE PIT");
               contentObject->AddHeader(*header_repo);
         }
         else
-            NS_LOG_UNCOND("NODE:\t" << inFace->GetNode()->GetId() << " CONTENT NOT IN REPO: " << interestNoChunk);
+            // NS_LOG_UNCOND("NODE:\t" << inFace->GetNode()->GetId() << " CONTENT NOT IN REPO: " << interestNoChunk);
   }
   else    // It is NOT a REPO, so the lookup is done on the entire name.
   {

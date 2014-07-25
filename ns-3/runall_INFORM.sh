@@ -7,7 +7,7 @@ SCRIPTPATH=`pwd`
 fws="Inform"
 #cdp="fix"
 
-runs=0
+runs=4
 logDir=RESULTS
 infoDir=infoSim
 #net=`grep 'net=' $iniFile | awk '{print $3}' | awk -F '=' '{print $2}' | awk -F '}' '{print $1}'`
@@ -23,19 +23,19 @@ netImport=""
 clPerc=50    		# Percentage of core node a client is attached to. 
 eta=0.7      		# Eta parameter to calculate the Q-value
 delta=0.1    		# Treshold indicating when the Exploitation phase must be stopped.
-maxExplor=2		# Max num of chunks for the Exploration phase
-maxExploit=8 		# Max num of chunks for the Exploitation phase
-qTabLifetime=20 		# qTab lifitime [s]
+maxExplor=3		# Max num of chunks for the Exploration phase
+maxExploit=30 		# Max num of chunks for the Exploitation phase
+qTabLifetime=100	# qTab lifitime [s]
 
 
 numClients=35           #approximately
 #L=200
 #simDuration=5000
-#req=500000000
-req=1500
+req=50000000
+#req=1500
 
 #for n in Geant SmallWorld_Triu Random_Triu
-for n in smallWorld #Geant_Topo_Only #random
+for n in smallWorld random #Geant_Topo_Only #random
 do
 	echo $n
         if [ $n == "smallWorld" ] || [ $n == "random" ]; then
@@ -44,7 +44,7 @@ do
                 netImport=Annotated
         fi
 
-        for k in 1              #alpha
+        for k in 0.8 1 1.2             #alpha
         do
                 for z in 1           #lambda
                 do

@@ -413,7 +413,7 @@ ConsumerRtxZipf::SendPacket ()
 
   while (m_retxSeqs.size())
   {
-	  NS_LOG_UNCOND("SEND PACKET - APP: RETX QUEUE SIZE\t" << m_retxSeqs.size () << "\t" << Simulator::Now());
+	  // NS_LOG_UNCOND("SEND PACKET - APP: RETX QUEUE SIZE\t" << m_retxSeqs.size () << "\t" << Simulator::Now());
 	  seq = *m_retxSeqs.begin ();
 
 	  seqStream << seq;
@@ -428,7 +428,7 @@ ConsumerRtxZipf::SendPacket ()
 
 	  currentSeq = seq;
 
-	  NS_LOG_UNCOND("SEND PACKET - APP: RTX for contID: " << contentID << "\t and ChunkNum: " << chunkNum);
+	  // NS_LOG_UNCOND("SEND PACKET - APP: RTX for contID: " << contentID << "\t and ChunkNum: " << chunkNum);
       //m_retxSeqs.erase (m_retxSeqs.begin ());
 	  m_retxSeqs.erase (seq);
       retransmit = true;
@@ -450,7 +450,7 @@ ConsumerRtxZipf::SendPacket ()
 		  contentID = ConsumerRtxZipf::GetNextSeq();
 		  m_currentContentID = contentID;
 		  newContent = true;
-		  NS_LOG_UNCOND("SEND PACKET - APP: EXTRACTED CONTENT ID\t" << m_currentContentID << "\t" << Simulator::Now());
+		  // NS_LOG_UNCOND("SEND PACKET - APP: EXTRACTED CONTENT ID\t" << m_currentContentID << "\t" << Simulator::Now());
 	  }
 	  currentSeq = m_seq;
 	  m_seq ++;
@@ -545,7 +545,7 @@ ConsumerRtxZipf::SendPacket ()
   // ** If it is NOT a RETRANSMISSION
   if(!retransmit)
   {
-	  NS_LOG_UNCOND("SEND PACKET - APP: Sending NEW Content\t" << fullName << "\t" << Simulator::Now());
+	  // NS_LOG_UNCOND("SEND PACKET - APP: Sending NEW Content\t" << fullName << "\t" << Simulator::Now());
 
 
   	 std::string intApp = fullName;
@@ -696,7 +696,7 @@ ConsumerRtxZipf::OnContentObject (const Ptr<const ContentObject> &contentObject,
   std::string cont_ric_app = ss.str();
   ss.str("");
 
-  NS_LOG_UNCOND("NODE:\t" << Application::GetNode()->GetId() << "\tON DATA - APP: Received CONTENT OBJECT\t" << cont_ric << "\t" << Simulator::Now());
+  // NS_LOG_UNCOND("NODE:\t" << Application::GetNode()->GetId() << "\tON DATA - APP: Received CONTENT OBJECT\t" << cont_ric << "\t" << Simulator::Now());
 
 
   // Retrieve the ContentID and the ChunkNumber associated to the received content
@@ -708,7 +708,7 @@ ConsumerRtxZipf::OnContentObject (const Ptr<const ContentObject> &contentObject,
   seqStr = ss.str();
   ss.str("");
 
-  NS_LOG_UNCOND("NODE:\t" << Application::GetNode()->GetId() << "\tON DATA - APP: Received CONTENT OBJECT with SeqNum\t" << seqNumRic << "\t" << Simulator::Now());
+  // NS_LOG_UNCOND("NODE:\t" << Application::GetNode()->GetId() << "\tON DATA - APP: Received CONTENT OBJECT with SeqNum\t" << seqNumRic << "\t" << Simulator::Now());
 
   //std::map<std::string, const std::vector<uint32_t>*>::iterator itMap;
 
@@ -735,7 +735,7 @@ ConsumerRtxZipf::OnContentObject (const Ptr<const ContentObject> &contentObject,
 
 
   // Print a LOG MSG every 100 chunks.
-  if((seqNumRic % 100) == 0)
+  if((seqNumRic % 500) == 0)
 
           NS_LOG_UNCOND("NODE:\t" << Application::GetNode()->GetId() << "\t APP-LAYER RECEIVED DATA:\t" << cont_ric << "\t" << Simulator::Now().GetMicroSeconds());
 
@@ -783,25 +783,25 @@ ConsumerRtxZipf::OnContentObject (const Ptr<const ContentObject> &contentObject,
   std::string contentWithoutChunk = ss.str();
   ss.str("");
 
-  NS_LOG_UNCOND("NODE:\t" << Application::GetNode()->GetId() << "\t Content WITHOUT CHUNK:\t" << contentWithoutChunk);
+  // NS_LOG_UNCOND("NODE:\t" << Application::GetNode()->GetId() << "\t Content WITHOUT CHUNK:\t" << contentWithoutChunk);
   // Control if the respective content of the received chunk has been already deleted from the structure.
   // This can happen when one ore more chunks are received after the last chunk.
   if(download_time_file->find(contentWithoutChunk)!=download_time_file->end())
   {
         uint32_t totNumChunks = download_time_file->find(contentWithoutChunk)->second.expNumChunk;
 
-        NS_LOG_UNCOND("NODE:\t" << Application::GetNode()->GetId() << "\t Content:\t" << contentWithoutChunk << " with " << totNumChunks << " expected chunks presente nella mappa");
+        // NS_LOG_UNCOND("NODE:\t" << Application::GetNode()->GetId() << "\t Content:\t" << contentWithoutChunk << " with " << totNumChunks << " expected chunks presente nella mappa");
 
         std::string checkChunk = "s_";
         ss << checkChunk << (totNumChunks-1);
         checkChunk = ss.str();
 
-        NS_LOG_UNCOND("Content:\t" << contentWithoutChunk << " with extracted chunk number:\t" << chunkString << "\t and expected chunk string:\t" << checkChunk);
+        // NS_LOG_UNCOND("Content:\t" << contentWithoutChunk << " with extracted chunk number:\t" << chunkString << "\t and expected chunk string:\t" << checkChunk);
 
         if (chunkString.compare(checkChunk) != 0)    // The received chunk does not correspond to the last one; so, only the counter of received chunk is incremented.
                                                      // If exactly the last chunk is lost, the respective contents will stay into the download_time_file structure.
         {
-                NS_LOG_UNCOND("NODE:\t" << Application::GetNode()->GetId() << "\t IS NOT THE LAST CHUNK!");
+                // NS_LOG_UNCOND("NODE:\t" << Application::GetNode()->GetId() << "\t IS NOT THE LAST CHUNK!");
 
                 download_time_file->find(contentWithoutChunk)->second.rcvNumChunk++;
 
@@ -830,14 +830,14 @@ ConsumerRtxZipf::OnContentObject (const Ptr<const ContentObject> &contentObject,
         else    // The received chunk is the LAST one. If rcvChunks == expChunks --> calculate Download Time;
                 // otherwise, the content is marked as lost.
         {
-                NS_LOG_UNCOND("NODE:\t" << Application::GetNode()->GetId() << "\t IS THE LAST CHUNK");
+                // NS_LOG_UNCOND("NODE:\t" << Application::GetNode()->GetId() << "\t IS THE LAST CHUNK");
 
                 uint32_t cksRcv = download_time_file->find(contentWithoutChunk)->second.rcvNumChunk;
                 uint32_t cksExp = totNumChunks - 1;
 
                 if(cksRcv == cksExp)
                 {
-                        NS_LOG_UNCOND("NODE:\t" << Application::GetNode()->GetId() << "\t num RECEIVED chunks:\t" << cksRcv << " equal to num of expected chunks:\t" << cksExp);
+                        // NS_LOG_UNCOND("NODE:\t" << Application::GetNode()->GetId() << "\t num RECEIVED chunks:\t" << cksRcv << " equal to num of expected chunks:\t" << cksExp);
                         download_time_file->find(contentWithoutChunk)->second.rcvNumChunk++;
 
                         // ** The download time of the single chunk is calculated and added to the sum the refers to the respective content
@@ -871,7 +871,7 @@ ConsumerRtxZipf::OnContentObject (const Ptr<const ContentObject> &contentObject,
                 }
                 else    // One or more chunks have been not received; so the entire content is marked as LOST
                 {
-                        NS_LOG_UNCOND("NODE:\t" << Application::GetNode()->GetId() << "\t Content Name:\t" << contentWithoutChunk << "\t one or more stuff are lost");
+                        // NS_LOG_UNCOND("NODE:\t" << Application::GetNode()->GetId() << "\t Content Name:\t" << contentWithoutChunk << "\t one or more stuff are lost");
 
                         Time firstChunkTime = download_time_file->find(contentWithoutChunk)->second.sentTimeFirst;
                         download_time_file->erase(contentWithoutChunk);
